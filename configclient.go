@@ -3,37 +3,65 @@ package configclient
 import (
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
+// Client facilitates connection to the spring config server. The config URL is formed like this:
+// http(s)://{ServerAddr}{/Branch}/{Application}{-Profile}.{json|yaml}
 type Client struct {
-	Server      string
+
+	// ServerAddr is the address (with port) of the config server
+	ServerAddr string
+
+	// Application is the application name
 	Application string
-	Pofile      string
-	Branch      string
-	Format      string
-	Authorize   bool
-	BasicAuth   Authorization
+
+	// Profile is the profile the application is running in
+	Profile string
+
+	// Branch is used to determine the branch name, if the config server is using git as backend.
+	Branch string
+
+	// Fomat is either json or yaml
+	Format string
+
+	// Authorize determines whether to perform basic authroization or not.
+	Authorize bool
+
+	// UseHTTP controls the http/https protocol in the URL
+	UseHTTPS bool
+
+	// BasicAuth represents the username and password authroization required to complete the request
+	BasicAuth Authorization
 }
 
+// Authorization represents the username password combination
 type Authorization struct {
 	Username string
 	Password string
 }
 
+// FetchConfig connects to the config server and returns the json/yaml response as []byte
 func (c *Client) FetchConfig() ([]byte, error) {
 	httpClient := &http.Client{}
 
-	url := c.Server
+	url := "http"
+
+	if c.UseHTTPS {
+		url += "s"
+	}
+
+	url += "://" + c.ServerAddr
 	if c.Branch != "" {
 		url += "/" + c.Branch
 	}
 
 	url += "/" + c.Application
-	if c.Pofile != "" {
-		url += "-" + c.Pofile
+	if c.Profile != "" {
+		url += "-" + c.Profile
 	}
 
-	switch c.Format {
+	switch strings.ToLower(c.Format) {
 	case "yaml":
 		url += ".yaml"
 		break

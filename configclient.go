@@ -23,9 +23,9 @@ type Authorization struct {
 func (c *Client) FetchConfig() ([]byte, error) {
 	httpClient := &http.Client{}
 
-	url := c.Server + "/"
+	url := c.Server
 	if c.Branch != "" {
-		url += c.Branch
+		url += "/" + c.Branch
 	}
 
 	url += "/" + c.Application

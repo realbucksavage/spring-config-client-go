@@ -5,7 +5,7 @@ A simple package that facilitates fetching of configuration from a Spring Cloud 
 ## Installation
 
 ```shell
-$ go get github.com/realbucksavage/spring-config-client-go
+go get github.com/realbucksavage/spring-config-client-go
 ```
 
 ## Usage
@@ -16,19 +16,61 @@ import (
     "github.com/realbucksavage/spring-config-client-go"
 )
 
-func main() {
-    client := &configclient.Client{
-        ServerAddr:  "config:8888",
-        Application: "myapp",
-        Profile:     "prod",
-        Format:      "json",
-    }
-
-    bytes, err := client.FetchConfig()
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    log.Printf("Config as JSON: %s\n", string(bytes))
+type applicationConfig struct {
+    Key1 Key1Type `json:"key1" yaml:"key1"`
+    // ...
 }
+
+func main() {
+    client, err := cloudconfig.NewClient(
+        "config:8888",
+        "someapp",
+        "production",
+    )
+    if err != nil {
+        panic(err)
+    }
+
+    // get a reader to configuration
+    rdr, err := client.Raw()
+
+    // or, decode configuration directly into a struct
+    var appConfig applicationConfig
+    err := client.Decode(&appConfig)
+}
+```
+
+The client can also be customized with these options
+
+### Basic Auth
+
+```go
+client, err := cloudconfig.NewClient(
+    server, 
+    application, 
+    profile, 
+    cloudconfig.WithBasicAuth("username", "password"),
+)
+```
+
+### Reading config as YAML instead of (default) JSON
+
+```go
+client, err := cloudconfig.NewClient(
+    server,
+    application,
+    profile, 
+    cloudconfig.WithFormat(cloudconfig.YAMLFormat)),
+)
+```
+
+### Using HTTPs (or, setting the scheme of config server's URL)
+
+```go
+client, err := cloudconfig.NewClient(
+    server,
+    application,
+    profile, 
+    cloudconfig.WithScheme("https"),
+)
 ```

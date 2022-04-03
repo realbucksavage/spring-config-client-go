@@ -5,7 +5,7 @@ A simple package that facilitates fetching of configuration from a Spring Cloud 
 ## Installation
 
 ```shell
-go get github.com/realbucksavage/spring-config-client-go
+go get github.com/realbucksavage/spring-config-client-go/v2
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ go get github.com/realbucksavage/spring-config-client-go
 ```go
 import (
     "log"
-    "github.com/realbucksavage/spring-config-client-go"
+    "github.com/realbucksavage/spring-config-client-go/v2"
 )
 
 type applicationConfig struct {
